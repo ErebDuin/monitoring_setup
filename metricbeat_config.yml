@@ -1,0 +1,27 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+setup.template.name: "metrics"
+setup.template.pattern: "metrics-*"
+setup.template.settings:
+  index.number_of_shards: 1
+
+setup.kibana:
+  host: "elk.digiorum.com:443"
+  protocol: "https"
+  space.id: logs
+
+output.elasticsearch:
+  hosts: ["https://es.digiorum.com:443"]
+  index: "metrics-%{+yyyy.MM.dd}"
+  protocol: "https"
+  username: "elk_user"
+  password: "elk_pass"
+  preset: balanced
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~

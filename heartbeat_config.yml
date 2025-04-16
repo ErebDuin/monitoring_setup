@@ -1,0 +1,33 @@
+heartbeat.monitors:
+  - type: tcp
+    id: tcp-3000
+    name: Frontend network port monitoring
+    schedule: '@every 30s'
+    hosts: ["tcp://localhost:3000"]
+
+  - type: tcp
+    id: tcp-8080
+    name: Backend network port monitoring
+    schedule: '@every 30s'
+    hosts: ["tcp://localhost:8080"]
+
+setup.kibana:
+  host: "elk.digiorum.com:443"
+  protocol: "https"
+  space.id: logs
+
+output.elasticsearch:
+  hosts: ["https://es.digiorum.com:443"]
+  index: "hb-%{+yyyy.MM.dd}"
+  protocol: "https"
+  username: "elk_user"
+  password: "elk_pass"
+
+setup.template.name: "heartbeat"
+setup.template.pattern: "heartbeat-*"
+setup.template.settings:
+  index.number_of_shards: 1
+
+processors:
+  - add_host_metadata: ~
+  - add_observer_metadata: ~

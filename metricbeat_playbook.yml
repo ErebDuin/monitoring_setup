@@ -1,0 +1,37 @@
+- hosts: testservers
+  become: true
+  tasks:
+
+  - name: Install Metricbeat
+    ansible.builtin.yum:
+      name: metricbeat
+      state: latest
+
+  - name: Template metricbeat config file to /etc/metricbeat/metricbeat.yml
+    ansible.builtin.template:
+      src: metricbeat_config.yml
+      dest: /etc/metricbeat/metricbeat.yml
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Run metricbeat setup
+    ansible.builtin.command: metricbeat setup
+    args:
+      creates: /etc/metricbeat/metricbeat.yml
+
+  - name: Enable system module for metricbeat
+    ansible.builtin.command: metricbeat modules enable system
+    args:
+      creates: /etc/metricbeat/modules.d/system.yml
+
+  - name: Run metricbeat setup with dashboards
+    ansible.builtin.command: metricbeat setup --dashboards
+    args:
+      creates: /etc/metricbeat/metricbeat.yml
+
+  - name: Enable and start metricbeat service
+    ansible.builtin.service:
+      name: metricbeat
+      enabled: yes
+      state: started

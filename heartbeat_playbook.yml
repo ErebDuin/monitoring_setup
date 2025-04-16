@@ -1,0 +1,27 @@
+- hosts: testservers
+  become: true
+  tasks:
+
+  - name: Install Heartbeat
+    ansible.builtin.yum:
+      name: heartbeat-elastic
+      state: latest
+
+  - name: Template heartbeat config to /etc/heartbeat/heartbeat.yml
+    ansible.builtin.template:
+      src: heartbeat_config.yml
+      dest: /etc/heartbeat/heartbeat.yml
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Run heartbeat setup
+    ansible.builtin.command: heartbeat setup
+    args:
+      creates: /etc/heartbeat/heartbeat.yml
+
+  - name: Enable and start heartbeat service
+    ansible.builtin.service:
+      name: heartbeat-elastic
+      enabled: yes
+      state: started
